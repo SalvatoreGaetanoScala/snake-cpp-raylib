@@ -1,73 +1,41 @@
-# Snake MVC (C++ & raylib)
+# Directory di build e artefatti CMake
+build/
+out/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
 
-Gioco di Snake in C++17 con raylib, strutturato con architettura MVC e compilato con CMake.
+# Oggetti compilati, librerie ed eseguibili
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+snake_mvc
+snake_mvc.app/
 
-## Struttura
+# Archivi e cartelle temporanee di release
+*.zip
+*.tar.gz
+pacchetto_tmp/
+release_macos/
 
-```text
-snake_mvc/
-├── CMakeLists.txt
-├── .gitignore
-├── README.md
-├── include/
-│   ├── SnakeModel.hpp
-│   ├── SnakeView.hpp
-│   └── SnakeController.hpp
-└── src/
-    ├── SnakeModel.cpp
-    ├── SnakeView.cpp
-    ├── SnakeController.cpp
-    └── main.cpp
-```
+# File di sistema macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
 
-* **Model**: stato del gioco, movimento, cibo, punteggio e collisioni (senza raylib).
-* **View**: disegno con raylib (griglia, serpente, cibo, punteggio, Game Over).
-* **Controller**: input da tastiera, timer a step e loop principale.
-
-## Comandi
-
-### Compilare ed eseguire (macOS / Linux)
-
-```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release -j
-./build/snake_mvc
-```
-
-### Compilare ed eseguire (Windows)
-
-```powershell
-cmake -B build
-cmake --build build --config Release
-.\build\Release\snake_mvc.exe
-```
-
-## Controlli
-
-* **Frecce** o **WASD**: muovi il serpente
-* **R**: riavvia la partita
-* **ESC**: esci
-
-## GitHub (sorgente e build macOS)
-
-1. Carica nel branch `main` solo i sorgenti, `CMakeLists.txt`, `.gitignore` e `README.md` (la cartella `build/` è ignorata):
-
-```bash
-git init
-git branch -M main
-git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/TUO_USERNAME/NOME_REPO.git
-git push -u origin main
-```
-
-2. Crea lo `.zip` della build macOS e caricalo come file allegato in una **GitHub Release**:
-
-```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release -j
-mkdir -p release_pkg/snake_mvc
-cp build/snake_mvc release_pkg/snake_mvc/
-cd release_pkg && zip -r ../snake_mvc-macos.zip snake_mvc && cd ..
-rm -rf release_pkg
-```
+# Editor e IDE
+.vscode/
+.idea/
+*.xcodeproj/
+*.xcworkspace/
+*.sln
+*.vcxproj*
