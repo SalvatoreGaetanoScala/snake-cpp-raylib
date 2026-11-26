@@ -4,14 +4,12 @@
 
 int main()
 {
-    constexpr int kGridWidth = 25;
-    constexpr int kGridHeight = 25;
-    constexpr int kCellSize = 28;
-    constexpr int kHudHeight = 48;
-    constexpr float kStepInterval = 0.12f; // 120 ms per passo
+    constexpr int kWindowWidth = 1280;
+    constexpr int kWindowHeight = 720;
+    constexpr float kStepInterval = 0.11f; // 110 ms per passo
 
-    SnakeModel model(kGridWidth, kGridHeight);
-    SnakeView view(kCellSize, kHudHeight, "Snake MVC - Raylib + C++");
+    SnakeView view(kWindowWidth, kWindowHeight, "Snake MVC - Isometric 3D");
+    SnakeModel model;
     SnakeController controller(model, view, kStepInterval);
 
     controller.run();

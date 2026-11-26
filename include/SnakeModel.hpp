@@ -1,59 +1,86 @@
 #pragma once
 
+#include "Types.hpp"
+
 #include <deque>
 #include <random>
-#include <utility>
+#include <unordered_set>
+#include <vector>
 
-enum class Direction
+// Un serpente nel mondo infinito.
+struct Snake
 {
-    Up,
-    Down,
-    Left,
-    Right
+    std::deque<Cell> body;     // body.front() = testa
+    std::deque<Cell> prevBody; // posizione al passo precedente (per l'interpolazione grafica)
+    Direction dir = Direction::Right;
+    std::deque<Direction> inputQueue; // svolte prenotate dal giocatore (max 3)
+    bool alive = true;
+    bool isCpu = false;
+    int skin = 0;
+    int score = 0;
+    float respawnTimer = 0.0f; // solo CPU: tempo prima di ricomparire
+
+    Cell head() const { return body.front(); }
 };
 
-struct Cell
+// Eventi prodotti dal Model e consumati dalla View (particelle, messaggi).
+struct GameEvent
 {
-    int x = 0;
-    int y = 0;
-
-    bool operator==(const Cell &other) const
+    enum class Type
     {
-        return x == other.x && y == other.y;
-    }
+        AppleEaten,
+        SnakeDied,
+        SnakeRespawned
+    };
+
+    Type type;
+    Cell cell;
+    int snakeIndex;
 };
 
+// Stato del gioco: mappa infinita (stile agar.io), mele sparse, uno o due serpenti.
+// Non dipende da raylib.
 class SnakeModel
 {
 public:
-    SnakeModel(int gridWidth, int gridHeight);
+    SnakeModel();
 
-    void reset();
-    void setDirection(Direction newDir);
-    void step(); // Avanza di una singola cella
+    // Partita vera: serpente 0 = giocatore, serpente 1 = CPU (solo in VersusCpu)
+    void startGame(GameMode mode, int playerSkin, int cpuSkin);
+    // Partita "dimostrativa" che gira dietro ai menu: tutti i serpenti sono guidati dal computer
+    void startDemo(int snakeCount, int skinA, int skinB);
 
-    int getGridWidth() const { return gridWidth_; }
-    int getGridHeight() const { return gridHeight_; }
-    const std::deque<Cell> &getSnake() const { return snake_; }
-    Cell getFood() const { return food_; }
-    int getScore() const { return score_; }
-    bool isGameOver() const { return gameOver_; }
+    void setSkin(int snakeIndex, int skin);
+    void queueDirection(int snakeIndex, Direction d);
+
+    void step();                 // avanza tutti i serpenti di una cella
+    void updateTimers(float dt); // respawn della CPU
+
+    const std::vector<Snake> &getSnakes() const { return snakes_; }
+    const std::unordered_set<Cell, CellHash> &getApples() const { return apples_; }
+    const std::vector<GameEvent> &getEvents() const { return events_; }
+    void clearEvents() { events_.clear(); }
+
+    GameMode getMode() const { return mode_; }
+    bool isDemo() const { return demo_; }
+    bool isPlayerDead() const;
+    int snakeCount() const { return static_cast<int>(snakes_.size()); }
 
 private:
-    bool isOpposite(Direction a, Direction b) const;
-    bool isOccupiedBySnake(const Cell &cell) const;
-    void spawnFood();
+    Snake makeSnake(Cell start, Direction dir, int skin, bool cpu) const;
+    void killSnake(int index);
+    void respawnSnake(int index);
+    Direction chooseCpuDirection(int index) const;
+    int floodFillArea(Cell start, const std::unordered_set<Cell, CellHash> &blocked, int limit) const;
+    bool isOccupied(Cell c, int ignoreSnake = -1) const;
+    void maintainApples();
+    bool findFreeCellNear(Cell center, int minDist, int maxDist, Cell &out);
 
-    int gridWidth_;
-    int gridHeight_;
+    std::vector<Snake> snakes_;
+    std::unordered_set<Cell, CellHash> apples_;
+    std::vector<GameEvent> events_;
+    GameMode mode_ = GameMode::SinglePlayer;
+    bool demo_ = false;
 
-    std::deque<Cell> snake_;
-    Direction currentDir_ = Direction::Right;
-    Direction nextDir_ = Direction::Right;
-
-    Cell food_{0, 0};
-    int score_ = 0;
-    bool gameOver_ = false;
-
-    std::mt19937 rng_;
+    mutable std::mt19937 rng_;
 };
